@@ -26,6 +26,16 @@
 
 namespace Google\Web_Stories;
 
+use AmpProject\AmpWP\Transformer\AmpSchemaOrgMetadata;
+use AmpProject\AmpWP\Transformer\AmpSchemaOrgMetadataConfiguration;
+use AmpProject\Optimizer\Configuration;
+use AmpProject\Optimizer\Error;
+use AmpProject\Optimizer\ErrorCollection;
+use AmpProject\Optimizer\TransformationEngine;
+use AmpProject\Optimizer\Transformer\AmpRuntimeCss;
+use AmpProject\Optimizer\Transformer\ReorderHead;
+use AmpProject\Optimizer\Transformer\TransformedIdentifier;
+
 /**
  * Class Story_Renderer
  */
@@ -326,6 +336,75 @@ class Story_Renderer {
 	}
 
 	/**
+	 * Get the configuration object to use.
+	 *
+	 * @return Configuration Optimizer configuration to use.
+	 */
+	private function get_optimizer_configuration() {
+		$transformers = [
+			AmpSchemaOrgMetadata::class,
+			AmpRuntimeCss::class,
+			TransformedIdentifier::class,
+			ReorderHead::class,
+		];
+
+		$configuration = [ Configuration::KEY_TRANSFORMERS => $transformers ];
+		$config        = new Configuration( $configuration );
+		$config->registerConfigurationClass(
+			AmpSchemaOrgMetadata::class,
+			AmpSchemaOrgMetadataConfiguration::class
+		);
+
+		return $config;
+	}
+
+	/**
+	 * Optimizes the resulting markup using AMP Optimizer if available.
+	 *
+	 * @param string $content Story markup.
+	 *
+	 * @return string Filtered content.
+	 */
+	protected function optimize_markup( $content ) {
+		if ( ! class_exists( '\AmpProject\Optimizer\TransformationEngine' ) ) {
+			return $content;
+		}
+
+		$enable_optimizer = true;
+
+		/** This filter is documented in amp-wp/includes/class-amp-theme-support.php */
+		$enable_optimizer = apply_filters( 'amp_enable_optimizer', $enable_optimizer );
+
+		if ( ! $enable_optimizer ) {
+			return $content;
+		}
+
+		// Needed for \AmpProject\Optimizer\Transformer\AmpRuntimeCss.
+		$content = str_replace( '</head>', '<style amp-runtime></style></head>', $content );
+
+		$errors         = new ErrorCollection();
+		$optimizer      = new TransformationEngine( $this->get_optimizer_configuration() );
+		$optimized_html = $optimizer->optimizeHtml( $content, $errors );
+
+		if ( count( $errors ) === 0 ) {
+			return $optimized_html;
+		}
+
+		$error_messages = array_map(
+			static function( Error $error ) {
+				return ' - ' . $error->getCode() . ': ' . $error->getMessage();
+			},
+			iterator_to_array( $errors )
+		);
+
+		return str_replace(
+			'</html>',
+			"\n" . '<!---' . "\n" . 'AMP optimization could not be completed due to the following:' . "\n" . implode( "\n", $error_messages ) . "\n" . '-->' . "\n" . '</html>',
+			$content
+		);
+	}
+
+	/**
 	 * Renders the story.
 	 *
 	 * @return string The complete HTML markup for the story.
@@ -340,6 +419,7 @@ class Story_Renderer {
 		$markup = $this->add_publisher_logo( $markup );
 		$markup = $this->replace_body_start_tag( $markup );
 		$markup = $this->replace_body_end_tag( $markup );
+		$markup = $this->optimize_markup( $markup );
 		return $markup;
 	}
 }
