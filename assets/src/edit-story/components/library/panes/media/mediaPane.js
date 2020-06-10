@@ -41,19 +41,11 @@ import {
   getResourceFromMediaPicker,
 } from '../../../../app/media/utils';
 import paneId from './paneId';
-import MediaElement from './mediaElement';
+import MediaGallery from './mediaGallery';
 
 const Container = styled.div`
-  grid-area: infinitescroll;
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: 1fr 1fr;
   overflow: auto;
   padding: 1em 1.5em 0 1.5em;
-`;
-
-const Column = styled.div`
-  position: relative;
 `;
 
 const Message = styled.div`
@@ -122,8 +114,6 @@ const FILTERS = [
   { filter: 'image', name: __('Images', 'web-stories') },
   { filter: 'video', name: __('Video', 'web-stories') },
 ];
-
-const PREVIEW_SIZE = 150;
 
 function MediaPane(props) {
   const {
@@ -197,16 +187,6 @@ function MediaPane(props) {
     (resource) => insertElement(resource.type, { resource }),
     [insertElement]
   );
-
-  /**
-   * Check if number is odd or even.
-   *
-   * @param {number} n Number
-   * @return {boolean} Is even.
-   */
-  const isEven = (n) => {
-    return n % 2 === 0;
-  };
 
   const filterResource = useCallback(
     ({ mimeType, width, height }) => {
@@ -283,30 +263,7 @@ function MediaPane(props) {
           <Message>{__('No media found', 'web-stories')}</Message>
         ) : (
           <Container ref={refContainer}>
-            <Column>
-              {resources
-                .filter((_, index) => isEven(index))
-                .map((resource, i) => (
-                  <MediaElement
-                    resource={resource}
-                    key={i}
-                    width={PREVIEW_SIZE}
-                    onInsert={insertMediaElement}
-                  />
-                ))}
-            </Column>
-            <Column>
-              {resources
-                .filter((_, index) => !isEven(index))
-                .map((resource, i) => (
-                  <MediaElement
-                    resource={resource}
-                    key={i}
-                    width={PREVIEW_SIZE}
-                    onInsert={insertMediaElement}
-                  />
-                ))}
-            </Column>
+            <MediaGallery resources={resources} onInsert={insertMediaElement} />
             {hasMore && (
               <Loading ref={refContainerFooter}>
                 {__('Loading…', 'web-stories')}

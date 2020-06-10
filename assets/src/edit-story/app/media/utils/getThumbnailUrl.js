@@ -26,13 +26,13 @@ function getThumbnailUrl(resource) {
   let imageSrc = src;
   if (sizes) {
     const { web_stories_thumbnail: webStoriesThumbnail, large, full } = sizes;
-    if (webStoriesThumbnail && webStoriesThumbnail.source_url) {
-      imageSrc = webStoriesThumbnail.source_url;
-    } else if (large && large.source_url) {
-      imageSrc = large.source_url;
-    } else if (full && full.source_url) {
+    // if (webStoriesThumbnail && webStoriesThumbnail.source_url) {
+    //   imageSrc = webStoriesThumbnail.source_url;
+    // } else if (large && large.source_url) {
+    //   imageSrc = large.source_url;
+    // } else if (full && full.source_url) {
       imageSrc = full.source_url;
-    }
+    // }
   }
   return imageSrc;
 }

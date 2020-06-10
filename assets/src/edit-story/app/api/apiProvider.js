@@ -124,7 +124,7 @@ function APIProvider({ children }) {
   const getMedia = useCallback(
     ({ mediaType, searchTerm, pagingNum }) => {
       let apiPath = media;
-      const perPage = 100;
+      const perPage = 10;
       apiPath = addQueryArgs(apiPath, {
         context: 'edit',
         per_page: perPage,

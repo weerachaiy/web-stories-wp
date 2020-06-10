@@ -33,9 +33,7 @@ import getThumbnailUrl from '../../../../app/media/utils/getThumbnailUrl';
 import DropDownMenu from './dropDownMenu';
 
 const styledTiles = css`
-  width: 100%;
   transition: 0.2s transform, 0.15s opacity;
-  margin-bottom: 10px;
 `;
 
 const Image = styled.img`
@@ -119,23 +117,21 @@ const MediaElement = ({
   resource,
   width: requestedWidth,
   height: requestedHeight,
+  margin,
   onInsert,
 }) => {
   const {
     id: resourceId,
     src,
     type,
-    width: originalWidth,
-    height: originalHeight,
     local,
     alt,
   } = resource;
   const hasDropdownMenu = useFeature('mediaDropdownMenu');
 
-  const oRatio =
-    originalWidth && originalHeight ? originalWidth / originalHeight : 1;
-  const width = requestedWidth || requestedHeight / oRatio;
-  const height = requestedHeight || width / oRatio;
+  const width = requestedWidth;
+  const height = requestedHeight;
+  margin = margin || 0;
 
   const mediaElement = useRef();
   const [showVideoDetail, setShowVideoDetail] = useState(true);
@@ -213,6 +209,10 @@ const MediaElement = ({
     }
   }, [isMenuOpen, pointerEntered, type]);
 
+  useEffect(() => {
+    console.log(`>>> MediaElement #${resourceId} useEffect`);
+  });
+
   const onClick = () => onInsert(resource, width, height);
 
   if (type === 'image') {
@@ -222,6 +222,7 @@ const MediaElement = ({
         data-id={resourceId}
         onPointerEnter={onPointerEnter}
         onPointerLeave={onPointerLeave}
+        style={{margin: margin + 'px'}}
       >
         <Image
           key={src}
@@ -260,7 +261,7 @@ const MediaElement = ({
 
   const { lengthFormatted, poster, mimeType } = resource;
   return (
-    <Container onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
+    <Container onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} style={{margin: margin + 'px'}}>
       <Video
         key={src}
         ref={mediaElement}
@@ -305,6 +306,7 @@ MediaElement.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   onInsert: PropTypes.func,
+  margin: PropTypes.number,
 };
 
 export default memo(MediaElement);
