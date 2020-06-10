@@ -22,7 +22,7 @@ import { useCallback } from 'react';
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -33,10 +33,10 @@ import { OverlayPreset, OverlayType } from '../../utils/backgroundOverlay';
 import { SimplePanel } from './panel';
 
 function BackgroundOverlayPanel() {
-  const {
-    state: { currentPage },
-    actions: { updateCurrentPageProperties },
-  } = useStory();
+  const { currentPage, updateCurrentPageProperties } = useStory((state) => ({
+    currentPage: state.state.currentPage,
+    updateCurrentPageProperties: state.actions.updateCurrentPageProperties,
+  }));
   const overlay = currentPage.backgroundOverlay || OverlayType.NONE;
 
   const updateOverlay = useCallback(
@@ -60,6 +60,11 @@ function BackgroundOverlayPanel() {
               onChange={() => updateOverlay(type)}
               iconWidth={22}
               iconHeight={16}
+              aria-label={sprintf(
+                /* translators: %s: Overlay type */
+                __('Set overlay: %s', 'web-stories'),
+                label
+              )}
             />
           );
         })}

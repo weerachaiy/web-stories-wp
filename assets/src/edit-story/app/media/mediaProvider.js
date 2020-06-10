@@ -52,6 +52,7 @@ function MediaProvider({ children }) {
     setProcessing,
     removeProcessing,
     updateMediaElement,
+    deleteMediaElement,
   } = actions;
   const {
     actions: { getMedia },
@@ -77,9 +78,7 @@ function MediaProvider({ children }) {
   );
   const { uploadMedia, isUploading } = useUploadMedia({
     media,
-    pagingNum,
     setMedia,
-    fetchMedia,
   });
   const { uploadVideoFrame } = useUploadVideoFrame({
     updateMediaElement,
@@ -159,11 +158,12 @@ function MediaProvider({ children }) {
       setNextPage,
       setMediaType,
       setSearchTerm,
-      fetchMedia,
       resetFilters,
       uploadMedia,
       resetWithFetch,
       uploadVideoPoster,
+      deleteMediaElement,
+      updateMediaElement,
     },
   };
 
