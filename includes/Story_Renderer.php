@@ -287,11 +287,7 @@ class Story_Renderer {
 			iterator_to_array( $errors )
 		);
 
-		return str_replace(
-			'</html>',
-			"\n" . '<!---' . "\n" . 'AMP optimization could not be completed due to the following:' . "\n" . implode( "\n", $error_messages ) . "\n" . '-->' . "\n" . '</html>',
-			$content
-		);
+		return '</html>' . "\n" . '<!---' . "\n" . 'Web Stories: AMP optimization could not be completed due to the following:' . "\n" . implode( "\n", $error_messages ) . "\n" . '-->';
 	}
 
 	/**
