@@ -50,4 +50,4 @@ jobs:
           build-directory: '.test_artifacts/karma_snapshots'
           flags: '--config=percy.config.yml'
         env:
-         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
